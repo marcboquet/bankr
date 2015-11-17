@@ -25,11 +25,11 @@ module Bankr
     end
 
     def date
-      @date ||= DateTime.parse(@payload["Data"] + ' ' + @payload['Hora'].to_s)
+      @date ||= @payload["Data"].to_s
     end
 
     def value_date
-      @value_date ||= Date.parse(@payload["Data valor"].to_s)
+      @value_date ||= @payload["Data valor"].to_s
     end
 
     def remitter
@@ -100,9 +100,12 @@ module Bankr
     end
 
     def save
-      db = GDBM.new('movements.db')
-      db[signature] = Marshal.dump(payload)
-      db.close
+      if @payload
+        db = GDBM.new('movements.db')
+        db[signature] = Marshal.dump(@payload)
+        db.close
+      end
+      self
     end
 
     def to_hash
@@ -134,7 +137,7 @@ module Bankr
     end
 
     def normalize_amount(value)
-      BigDecimal.new(value.gsub('.','').gsub(',','.').each_char.select{|c| c.present?}.join)
+      BigDecimal.new(value.gsub('.','').gsub(',','.').each_char.select{|c| c.present?}.join) if value
     end
   end
 end

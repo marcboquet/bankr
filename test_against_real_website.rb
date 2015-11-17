@@ -13,4 +13,5 @@ puts 'Fetching movements for the last week...'
 movements = scraper.movements_until(account_number, 1.week.ago)
 
 puts "Fetched #{movements.size} movements."
-puts movements.map(&:to_hash)
+puts movements.inspect
+puts movements.reject(&:nil?).map(&:to_hash)

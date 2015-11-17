@@ -7,7 +7,7 @@ module Bankr
         @login = options[:login]
         @password = options[:password]
 
-        @url = "https://empresa.lacaixa.es/home/empreses_ca.html"
+        @url = "https://portal.lacaixa.es/home/particulars_ca.html"
         Capybara.default_wait_time = 4
         Capybara.register_driver :poltergeist do |app|
           Capybara::Poltergeist::Driver.new(app, js_errors: false)
@@ -59,7 +59,7 @@ module Bankr
         accounts_index
         inside_main_iframe do
           session.click_link iban
-          unless session.has_content?('Saldo actual')
+          unless session.has_content?('Saldo disponible')
             raise "Couldn't find account #{iban}"
           end
         end
@@ -79,7 +79,7 @@ module Bankr
       def accounts_index
         session.within_frame('Inferior') do
           session.within_frame('Niveles') do
-            session.click_link 'Tresoreria'
+            session.click_link 'Comptes'
           end
         end
       end
@@ -103,7 +103,7 @@ module Bankr
         basic_detail = Nokogiri::HTML(session.driver.evaluate_script("document.getElementById('#{row['id']}').innerHTML"))
         balance = basic_detail.search('td.rtxt')[2].text
 
-        if detail.has_css?('.detalle_info')
+        if false && detail.has_css?('.detalle_info')
           table = detail.find('.detalle_info .table_resumen')
           html = Nokogiri::HTML(session.driver.evaluate_script("document.getElementById('#{table['id']}').innerHTML"))
 
@@ -113,12 +113,14 @@ module Bankr
             attributes.update(attribute_row.search('td.rtxt').text => attribute_row.search('td.ltxt').text)
           end
         else
-          return {
+          movement_hash = {
             "Concepte" => basic_detail.search('th span a').text,
             "Data" => basic_detail.search('td.ltxt').first.text,
             "Import" => basic_detail.search('td.rtxt')[1].text,
             'balance' => balance,
           }
+          puts movement_hash
+          return movement_hash
         end
       rescue Capybara::ElementNotFound
         nil
