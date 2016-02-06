@@ -7,5 +7,9 @@ module Bankr
     def movements_until(iban, date)
       @scraper.movements_until(iban, date)
     end
+
+    def list_accounts
+      @scraper.list_accounts
+    end
   end
 end

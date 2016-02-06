@@ -15,6 +15,18 @@ module Bankr
         @session = Capybara::Session.new(:poltergeist)
       end
 
+      def list_accounts
+        log_in
+        accounts_index
+        inside_main_iframe do
+          table = session.find('#TablaBean01')
+          unless table
+            raise "Couldn't find accounts list"
+          end
+          table.all('tbody tr th a span').map(&:text)
+        end
+      end
+
       def movements_until(iban, date = Date.today)
         raise "Date has to be in the past" if date > Date.today
 
