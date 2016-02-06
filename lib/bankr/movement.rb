@@ -120,7 +120,7 @@ module Bankr
         recipient_account: recipient_account,
         amount: amount,
         balance: balance,
-        bank_branch: brank_branch,
+        bank_branch: bank_branch,
         iban: iban
       }
     end
