@@ -27,7 +27,7 @@ module Bankr
 
         movements_from_to(iban, date, Date.today)
       rescue Exception => e
-        path = "/tmp/#{Time.now}.png"
+        path = "tmp/#{Time.now}.png"
         session.save_screenshot(path, full: true)
 
         puts "---------------------------------------------------------------"
@@ -107,7 +107,7 @@ module Bankr
 
           session.click_link iban
 
-          if !session.has_content?('Saldo actual') && !session.has_content?('Número de compte')
+          if !session.has_css?('#titulo_cuenta')
             raise "Couldn't load account #{iban}"
           end
 
@@ -120,7 +120,7 @@ module Bankr
         session.visit(@url)
         session.fill_in('usuari', with: @login)
         session.fill_in('password', with: @password)
-        session.click_button 'Entrar'
+        session.find("#lolopodiv input[type='button']").click
 
         if !session.has_css?('#Cabecera') || session.has_content?('IDENTIFICACIO INCORRECTA') || session.has_content?("Accés a Línia Oberta")
           raise "Couldn't login"
@@ -131,20 +131,14 @@ module Bankr
 
       def accounts_index
         puts "Navigating to accounts index..."
-        session.all('frameset')
         session.within_frame('Inferior') do
-          session.all('frameset')
           session.within_frame('Niveles') do
-            session.find('body')
-            session.click_link 'Tresoreria'
+            session.find('#pestanya1 a').click # 'Tresoreria'
           end
         end
-        session.all('frameset')
         session.within_frame('Inferior') do
-          session.all('frameset')
           session.within_frame('Menu') do
-            session.find('body')
-            session.click_link 'Posició'
+            session.find('#menu0 a').click # 'Posició'
           end
         end
       end
